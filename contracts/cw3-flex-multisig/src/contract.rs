@@ -487,10 +487,11 @@ fn list_voters(
 
 #[cfg(test)]
 mod tests {
-    use cosmwasm_std::{coin, coins, Addr, BankMsg, Coin, Decimal, Timestamp, Uint128};
+    use cosmwasm_std::{coin, coins, to_json_string, Addr, BankMsg, Coin, Decimal, Timestamp, Uint128, WasmMsg};
 
     use cw2::{query_contract_info, ContractVersion};
     use cw20::{Cw20Coin, UncheckedDenom};
+    use cw20_base::msg::MigrateMsg;
     use cw3::{DepositError, UncheckedDepositInfo};
     use cw4::{Cw4ExecuteMsg, Member};
     use cw4_group::helpers::Cw4GroupContract;
@@ -2538,5 +2539,24 @@ mod tests {
         // Make sure the deposit was returned despite the proposal failing.
         let balance = app.wrap().query_balance(OWNER, "TOKEN").unwrap();
         assert_eq!(balance.amount, Uint128::new(10));
+    }
+
+    #[test]
+    fn test_migrate_proposal(){
+        let migrate_msg= MigrateMsg{};
+        let migrate: CosmosMsg<cosmwasm_std::Empty>= CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Migrate { 
+            contract_addr: Addr::unchecked("contract").to_string(), 
+            new_code_id: 222, msg: to_json_binary(&migrate_msg).unwrap()
+        });
+        let proposal= ExecuteMsg::Propose {
+            title: "Upgrade Contracts".to_owned(),
+            description: "Upgrade Contract".to_owned(),
+            
+            msgs: vec![migrate],
+            latest: None,
+            
+        };
+        println!("{:?}",&proposal);
+        println!("{:?}",to_json_string(&proposal).unwrap());
     }
 }

@@ -30,6 +30,9 @@ cw3 = { path = "packages/cw3", version = "2.0.0-rc.0" }
 cw3-fixed-multisig = { path = "contracts/cw3-fixed-multisig", version = "2.0.0-rc.0", features = [
     "library",
 ] }
+cw3-flex-multisig = { path = "contracts/cw3-flex-multisig", version = "2.0.0-rc.0", features = [
+    "library",
+] }
 cw4 = { path = "packages/cw4", version = "2.0.0-rc.0" }
 cw4-group = { path = "contracts/cw4-group", version = "2.0.0-rc.0" }
 easy-addr = { path = "packages/easy-addr" }
