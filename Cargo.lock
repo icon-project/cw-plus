@@ -551,6 +551,7 @@ dependencies = [
  "clap",
  "cosmwasm-std",
  "cw20-base",
+ "cw3",
  "cw3-flex-multisig",
  "cw4",
  "cw4-group",

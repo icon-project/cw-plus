@@ -3,6 +3,7 @@ use cosmwasm_std::{to_json_binary, to_json_string, Addr, CosmosMsg};
 use cw3_flex_multisig::msg::ExecuteMsg;
 use cw20_base::msg::MigrateMsg;
 use cw4::Member;
+use cw3::Vote;
 
 #[derive(Parser,Debug)]
 #[clap(version, about, long_about = None)]
@@ -16,12 +17,6 @@ pub struct Cli {
 
 #[derive(Subcommand,Debug)]
 enum Commands {
-    /// does testing things
-    Test {
-        /// lists test values
-        #[clap(short, long)]
-        list: bool,
-    },
      /// update admin address of a contract
     UpdateAdmin {
         /// new admin address
@@ -47,6 +42,12 @@ enum Commands {
         wasm_code_id:u64
 
 
+    },
+    Vote {
+        #[clap(short, long)]
+        proposal_id:u64,
+        #[clap(short, long)]
+        vote:String
     }
 }
 
@@ -56,7 +57,6 @@ fn main() {
     println!("Hello, world!");
 
   let res=  match args.method {
-        Commands::Test { list } => "".to_string(),
         Commands::UpdateAdmin { admin, contract } => {
              let msg= CosmosMsg::Wasm(cosmwasm_std::WasmMsg::UpdateAdmin { contract_addr: contract, admin: admin });
              let proposal= ExecuteMsg::Propose {
@@ -113,6 +113,16 @@ fn main() {
 
 
         to_json_string(&proposal).unwrap()
+    },
+    Commands::Vote { proposal_id, vote } => {
+        let vote= match vote.to_lowercase().as_str(){
+            "yes"=>Vote::Yes,
+            "no"=>Vote::No,
+            _=> Vote::Abstain,
+        };
+
+        let execute_vote= ExecuteMsg::Vote { proposal_id: proposal_id, vote };
+        to_json_string(&execute_vote).unwrap()
     },
     };
     println!("{:?}",&res);
