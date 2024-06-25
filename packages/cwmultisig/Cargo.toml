@@ -13,3 +13,4 @@ cw4-group = { path = "../../contracts/cw4-group", version = "2.0.0-rc.0" ,featur
 cw4={workspace=true}
 cw3={workspace=true}
 cw20-base={workspace=true}
+cw-utils={workspace=true}

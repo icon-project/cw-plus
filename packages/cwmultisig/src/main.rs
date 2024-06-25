@@ -1,3 +1,5 @@
+
+
 use clap::{arg, Parser, Subcommand,Command};
 use cosmwasm_std::{to_json_binary, to_json_string, Addr, CosmosMsg};
 use cw3_flex_multisig::msg::ExecuteMsg;
@@ -48,6 +50,12 @@ enum Commands {
         proposal_id:u64,
         #[clap(short, long)]
         vote:String
+    },
+    InitMultisig {
+        #[clap(short, long)]
+        group_contract:String,
+        #[clap(short, long)]
+        threshold:u64
     }
 }
 
@@ -124,6 +132,16 @@ fn main() {
         let execute_vote= ExecuteMsg::Vote { proposal_id: proposal_id, vote };
         to_json_string(&execute_vote).unwrap()
     },
+    Commands::InitMultisig { group_contract ,threshold}=>{
+        let msg= cw3_flex_multisig::msg::InstantiateMsg{
+            group_addr: group_contract,
+            threshold: cw_utils::Threshold::AbsoluteCount { weight: threshold },
+            max_voting_period: cw_utils::Duration::Time(2592000),
+            executor: None,
+            proposal_deposit: None,
+        };
+        to_json_string(&msg).unwrap()
+    }
     };
     println!("{:?}",&res);
 }
