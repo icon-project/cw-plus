@@ -16,7 +16,7 @@ use cw3::{
 use cw3_fixed_multisig::state::{next_id, BALLOTS, PROPOSALS};
 use cw4::{Cw4Contract, MemberChangedHookMsg, MemberDiff};
 use cw_storage_plus::Bound;
-use cw_utils::{maybe_addr, Expiration, ThresholdResponse};
+use cw_utils::{maybe_addr, Expiration, Threshold, ThresholdResponse};
 
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
@@ -79,6 +79,16 @@ pub fn execute(
         ExecuteMsg::Close { proposal_id } => execute_close(deps, env, info, proposal_id),
         ExecuteMsg::MemberChangedHook(MemberChangedHookMsg { diffs }) => {
             execute_membership_hook(deps, env, info, diffs)
+        },
+        ExecuteMsg::UpdateThreshold { threshold }=>{
+            let self_address= env.contract.address;
+            if(info.sender!=self_address){
+                return Err(ContractError::Unauthorized {  })
+            }
+            let mut config=CONFIG.load(deps.storage).unwrap();
+            config.threshold=Threshold::AbsoluteCount { weight: threshold };
+            CONFIG.save(deps.storage, &config).unwrap();
+            Ok(Response::new())
         }
     }
 }
@@ -300,6 +310,7 @@ pub fn execute_membership_hook(
     if info.sender != cfg.group_addr.0 {
         return Err(ContractError::Unauthorized {});
     }
+    
 
     Ok(Response::default())
 }

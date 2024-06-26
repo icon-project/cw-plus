@@ -35,7 +35,11 @@ enum Commands {
         #[clap(short, long)]
         remove:Option<String>,
         #[clap(short, long)]
-        contract:String
+        members_contract:String,
+        #[clap(short, long)]
+        threshold:u64,
+        #[clap(short, long)]
+        multisig_contract:String,
     },
     UpdateContract {
         #[clap(short, long)]
@@ -83,7 +87,7 @@ fn main() {
             to_json_string(&proposal).unwrap()
 
         },
-        Commands::UpdateMembers { add, remove ,contract}=>{
+        Commands::UpdateMembers { add, remove ,members_contract,multisig_contract,threshold}=>{
             let remove= remove.unwrap_or("".to_string()).split(",").into_iter().map(|s|s.to_string()).collect();
             let add= add.unwrap_or("".to_string()).split(",").into_iter().map(|m|{
                 Member{
@@ -92,17 +96,24 @@ fn main() {
                 }
             }).collect::<Vec<Member>>();
             let inner=cw4_group::msg::ExecuteMsg::UpdateMembers {add,remove };
-            let msg:CosmosMsg<cosmwasm_std::Empty> =CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Execute { 
-                contract_addr: contract, 
+            let update_member:CosmosMsg<cosmwasm_std::Empty> =CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Execute { 
+                contract_addr: members_contract, 
                 msg: to_json_binary(&inner).unwrap(), 
                 funds: vec![],
             });
+            let inner_2=cw3_flex_multisig::msg::ExecuteMsg::UpdateThreshold { threshold };
+
+            let update_threshold=CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Execute { 
+                contract_addr:multisig_contract, 
+                msg: to_json_binary(&inner_2).unwrap(), 
+                funds: vec![] }
+            );
 
             let proposal= ExecuteMsg::Propose {
                 title: "UpdateGroupMembers".to_owned(),
                 description: "UpdateGroupMembers".to_owned(),
                 
-                msgs: vec![msg],
+                msgs: vec![update_member,update_threshold],
                 latest: None,
                 
             };

@@ -41,6 +41,9 @@ pub enum ExecuteMsg {
     },
     /// Handles update hook messages from the group contract
     MemberChangedHook(MemberChangedHookMsg),
+    UpdateThreshold {
+        threshold:u64,
+    }
 }
 
 // We can also add this as a cw3 extension
