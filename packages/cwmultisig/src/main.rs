@@ -73,8 +73,8 @@ fn main() {
         Commands::UpdateAdmin { admin, contract } => {
              let msg= CosmosMsg::Wasm(cosmwasm_std::WasmMsg::UpdateAdmin { contract_addr: contract, admin: admin });
              let proposal= ExecuteMsg::Propose {
-                title: "Update Contract Admin".to_owned(),
-                description: "Update Contract Admin".to_owned(),
+                title: "UpdateContractAdmin".to_owned(),
+                description: "UpdateContractAdmin".to_owned(),
                 
                 msgs: vec![msg],
                 latest: None,
