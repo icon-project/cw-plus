@@ -31,9 +31,9 @@ enum Commands {
     /// update members of multisig contract
     UpdateMembers {
         #[clap(short, long)]
-        add:Option<Vec<String>>,
+        add:Option<String>,
         #[clap(short, long)]
-        remove:Option<Vec<String>>,
+        remove:Option<String>,
         #[clap(short, long)]
         contract:String
     },
@@ -84,12 +84,14 @@ fn main() {
 
         },
         Commands::UpdateMembers { add, remove ,contract}=>{
-            let inner=cw4_group::msg::ExecuteMsg::UpdateMembers { remove:remove.unwrap_or_default(), add:add.unwrap_or_default().into_iter().map(|m|{
+            let remove= remove.unwrap_or("".to_string()).split(",").into_iter().map(|s|s.to_string()).collect();
+            let add= add.unwrap_or("".to_string()).split(",").into_iter().map(|m|{
                 Member{
-                    addr:m,
+                    addr:m.to_string(),
                     weight:1,
                 }
-            }).collect() };
+            }).collect::<Vec<Member>>();
+            let inner=cw4_group::msg::ExecuteMsg::UpdateMembers {add,remove };
             let msg:CosmosMsg<cosmwasm_std::Empty> =CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Execute { 
                 contract_addr: contract, 
                 msg: to_json_binary(&inner).unwrap(), 
