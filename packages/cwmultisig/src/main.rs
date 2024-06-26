@@ -1,187 +1,194 @@
-
-
-use clap::{arg, Parser, Subcommand,Command};
-use cosmwasm_std::{to_json_binary, to_json_string, Addr, CosmosMsg};
-use cw3_flex_multisig::msg::ExecuteMsg;
+use clap::{Parser, Subcommand};
+use cosmwasm_std::{to_json_binary, to_json_string, CosmosMsg};
 use cw20_base::msg::MigrateMsg;
-use cw4::Member;
 use cw3::Vote;
+use cw3_flex_multisig::msg::ExecuteMsg;
+use cw4::Member;
 
-#[derive(Parser,Debug)]
+#[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
 pub struct Cli {
     #[clap(subcommand)]
-     method: Commands,
-     #[clap(short, long)]
-     propose:bool
-
+    method: Commands,
+    #[clap(short, long)]
+    propose: bool,
 }
 
-#[derive(Subcommand,Debug)]
+#[derive(Subcommand, Debug)]
 enum Commands {
-     /// update admin address of a contract
+    /// update admin address of a contract
     UpdateAdmin {
         /// new admin address
         #[clap(short, long)]
-        admin:String,
+        admin: String,
         /// contract address
         #[clap(short, long)]
-        contract:String,
+        contract: String,
     },
     /// update members of multisig contract
     UpdateMembers {
         #[clap(short, long)]
-        add:String,
+        add: String,
         #[clap(short, long)]
-        remove:String,
+        remove: String,
         #[clap(short, long)]
-        members_contract:String,
+        members_contract: String,
         #[clap(short, long)]
-        threshold:u64,
-        #[clap(short='s', long)]
-        multisig_contract:String,
+        threshold: u64,
+        #[clap(short = 's', long)]
+        multisig_contract: String,
     },
     UpdateContract {
         #[clap(short, long)]
-        contract:String,
+        contract: String,
         #[clap(short, long)]
-        wasm_code_id:u64
-
-
+        wasm_code_id: u64,
     },
     Vote {
         #[clap(short, long)]
-        proposal_id:u64,
+        proposal_id: u64,
         #[clap(short, long)]
-        vote:String
+        vote: String,
     },
     InitMultisig {
         #[clap(short, long)]
-        group_contract:String,
+        group_contract: String,
         #[clap(short, long)]
-        threshold:u64
+        threshold: u64,
     },
     InitMembers {
         #[clap(short, long)]
-        members:String,
+        members: String,
         #[clap(short, long)]
-        admin:String
-    }
+        admin: String,
+    },
 }
 
 fn main() {
-    let args=Cli::parse();
-   // println!("{:?}",&args);
+    let args = Cli::parse();
+    // println!("{:?}",&args);
 
-  let res=  match args.method {
+    let res = match args.method {
         Commands::UpdateAdmin { admin, contract } => {
-             let msg= CosmosMsg::Wasm(cosmwasm_std::WasmMsg::UpdateAdmin { contract_addr: contract, admin: admin });
-             let proposal= ExecuteMsg::Propose {
+            let msg = CosmosMsg::Wasm(cosmwasm_std::WasmMsg::UpdateAdmin {
+                contract_addr: contract,
+                admin,
+            });
+            let proposal = ExecuteMsg::Propose {
                 title: "UpdateContractAdmin".to_owned(),
                 description: "UpdateContractAdmin".to_owned(),
-                
+
                 msgs: vec![msg],
                 latest: None,
-                
-            };
-            to_json_string(&proposal).unwrap()
-
-        },
-        Commands::UpdateMembers { add, remove ,members_contract,multisig_contract,threshold}=>{
-            let mut remove_list:Vec<String>=vec![];
-            let mut add_list:Vec<Member>=vec![];
-            if remove!="none".to_string() {
-                remove_list=remove.split(",").into_iter().map(|s|s.to_string()).collect();
-            }
-            if add!="none".to_string() {
-                add_list=add.split(",").into_iter().map(|m|{
-                    Member{
-                        addr:m.to_string(),
-                        weight:1,
-                    }
-                }).collect::<Vec<Member>>();
-
-            }
-            let inner=cw4_group::msg::ExecuteMsg::UpdateMembers {add:add_list,remove:remove_list};
-            let update_member:CosmosMsg<cosmwasm_std::Empty> =CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Execute { 
-                contract_addr: members_contract, 
-                msg: to_json_binary(&inner).unwrap(), 
-                funds: vec![],
-            });
-            let inner_2=cw3_flex_multisig::msg::ExecuteMsg::UpdateThreshold { threshold };
-
-            let update_threshold=CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Execute { 
-                contract_addr:multisig_contract, 
-                msg: to_json_binary(&inner_2).unwrap(), 
-                funds: vec![] }
-            );
-
-            let proposal= ExecuteMsg::Propose {
-                title: "UpdateGroupMembers".to_owned(),
-                description: "UpdateGroupMembers".to_owned(),
-                
-                msgs: vec![update_member,update_threshold],
-                latest: None,
-                
             };
             to_json_string(&proposal).unwrap()
         }
-    Commands::UpdateContract { contract ,wasm_code_id} => {
+        Commands::UpdateMembers {
+            add,
+            remove,
+            members_contract,
+            multisig_contract,
+            threshold,
+        } => {
+            let mut remove_list: Vec<String> = vec![];
+            let mut add_list: Vec<Member> = vec![];
+            if remove != *"none" {
+                remove_list = remove.split(',').map(|s| s.to_string()).collect();
+            }
+            if add != *"none" {
+                add_list = add
+                    .split(',')
+                    .map(|m| Member {
+                        addr: m.to_string(),
+                        weight: 1,
+                    })
+                    .collect::<Vec<Member>>();
+            }
+            let inner = cw4_group::msg::ExecuteMsg::UpdateMembers {
+                add: add_list,
+                remove: remove_list,
+            };
+            let update_member: CosmosMsg<cosmwasm_std::Empty> =
+                CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Execute {
+                    contract_addr: members_contract,
+                    msg: to_json_binary(&inner).unwrap(),
+                    funds: vec![],
+                });
+            let inner_2 = cw3_flex_multisig::msg::ExecuteMsg::UpdateThreshold { threshold };
 
-        let migrate_msg= MigrateMsg{};
-        let migrate: CosmosMsg<cosmwasm_std::Empty>= CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Migrate { 
-            contract_addr:contract, 
-            new_code_id: wasm_code_id, 
-            msg: to_json_binary(&migrate_msg).unwrap()
-        });
-        let proposal= ExecuteMsg::Propose {
-            title: "UpgradeContracts".to_owned(),
-            description: "UpgradeContract".to_owned(),
-            
-            msgs: vec![migrate],
-            latest: None,
-            
-        };
+            let update_threshold = CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Execute {
+                contract_addr: multisig_contract,
+                msg: to_json_binary(&inner_2).unwrap(),
+                funds: vec![],
+            });
 
+            let proposal = ExecuteMsg::Propose {
+                title: "UpdateGroupMembers".to_owned(),
+                description: "UpdateGroupMembers".to_owned(),
 
+                msgs: vec![update_member, update_threshold],
+                latest: None,
+            };
+            to_json_string(&proposal).unwrap()
+        }
+        Commands::UpdateContract {
+            contract,
+            wasm_code_id,
+        } => {
+            let migrate_msg = MigrateMsg {};
+            let migrate: CosmosMsg<cosmwasm_std::Empty> =
+                CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Migrate {
+                    contract_addr: contract,
+                    new_code_id: wasm_code_id,
+                    msg: to_json_binary(&migrate_msg).unwrap(),
+                });
+            let proposal = ExecuteMsg::Propose {
+                title: "UpgradeContracts".to_owned(),
+                description: "UpgradeContract".to_owned(),
 
-        to_json_string(&proposal).unwrap()
-    },
-    Commands::Vote { proposal_id, vote } => {
-        let vote= match vote.to_lowercase().as_str(){
-            "yes"=>Vote::Yes,
-            "no"=>Vote::No,
-            _=> Vote::Abstain,
-        };
+                msgs: vec![migrate],
+                latest: None,
+            };
 
-        let execute_vote= ExecuteMsg::Vote { proposal_id: proposal_id, vote };
-        to_json_string(&execute_vote).unwrap()
-    },
-    Commands::InitMultisig { group_contract ,threshold}=>{
-        let msg= cw3_flex_multisig::msg::InstantiateMsg{
-            group_addr: group_contract,
-            threshold: cw_utils::Threshold::AbsoluteCount { weight: threshold },
-            max_voting_period: cw_utils::Duration::Time(2592000),
-            executor: None,
-            proposal_deposit: None,
-        };
-        to_json_string(&msg).unwrap()
-    },
-    Commands::InitMembers { members, admin }=>{
-        let msg= cw4_group::msg::InstantiateMsg{
-            admin:Some(admin),
-            members:members.split(',').into_iter().map(|m|{
-                Member{
-                    addr:m.to_string(),
-                    weight:1
-                }
-            }).collect()
-        };
+            to_json_string(&proposal).unwrap()
+        }
+        Commands::Vote { proposal_id, vote } => {
+            let vote = match vote.to_lowercase().as_str() {
+                "yes" => Vote::Yes,
+                "no" => Vote::No,
+                _ => Vote::Abstain,
+            };
 
+            let execute_vote = ExecuteMsg::Vote { proposal_id, vote };
+            to_json_string(&execute_vote).unwrap()
+        }
+        Commands::InitMultisig {
+            group_contract,
+            threshold,
+        } => {
+            let msg = cw3_flex_multisig::msg::InstantiateMsg {
+                group_addr: group_contract,
+                threshold: cw_utils::Threshold::AbsoluteCount { weight: threshold },
+                max_voting_period: cw_utils::Duration::Time(2592000),
+                executor: None,
+                proposal_deposit: None,
+            };
+            to_json_string(&msg).unwrap()
+        }
+        Commands::InitMembers { members, admin } => {
+            let msg = cw4_group::msg::InstantiateMsg {
+                admin: Some(admin),
+                members: members
+                    .split(',')
+                    .map(|m| Member {
+                        addr: m.to_string(),
+                        weight: 1,
+                    })
+                    .collect(),
+            };
 
-        to_json_string(&msg).unwrap()
-
-    }
+            to_json_string(&msg).unwrap()
+        }
     };
-    println!("{:?}",&res);
+    println!("{:?}", &res);
 }

@@ -79,14 +79,14 @@ pub fn execute(
         ExecuteMsg::Close { proposal_id } => execute_close(deps, env, info, proposal_id),
         ExecuteMsg::MemberChangedHook(MemberChangedHookMsg { diffs }) => {
             execute_membership_hook(deps, env, info, diffs)
-        },
-        ExecuteMsg::UpdateThreshold { threshold }=>{
-            let self_address= env.contract.address;
-            if(info.sender!=self_address){
-                return Err(ContractError::Unauthorized {  })
+        }
+        ExecuteMsg::UpdateThreshold { threshold } => {
+            let self_address = env.contract.address;
+            if info.sender != self_address {
+                return Err(ContractError::Unauthorized {});
             }
-            let mut config=CONFIG.load(deps.storage).unwrap();
-            config.threshold=Threshold::AbsoluteCount { weight: threshold };
+            let mut config = CONFIG.load(deps.storage).unwrap();
+            config.threshold = Threshold::AbsoluteCount { weight: threshold };
             CONFIG.save(deps.storage, &config).unwrap();
             Ok(Response::new())
         }
@@ -310,7 +310,6 @@ pub fn execute_membership_hook(
     if info.sender != cfg.group_addr.0 {
         return Err(ContractError::Unauthorized {});
     }
-    
 
     Ok(Response::default())
 }
@@ -498,7 +497,9 @@ fn list_voters(
 
 #[cfg(test)]
 mod tests {
-    use cosmwasm_std::{coin, coins, to_json_string, Addr, BankMsg, Coin, Decimal, Timestamp, Uint128, WasmMsg};
+    use cosmwasm_std::{
+        coin, coins, to_json_string, Addr, BankMsg, Coin, Decimal, Timestamp, Uint128,
+    };
 
     use cw2::{query_contract_info, ContractVersion};
     use cw20::{Cw20Coin, UncheckedDenom};
@@ -2553,21 +2554,22 @@ mod tests {
     }
 
     #[test]
-    fn test_migrate_proposal(){
-        let migrate_msg= MigrateMsg{};
-        let migrate: CosmosMsg<cosmwasm_std::Empty>= CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Migrate { 
-            contract_addr: Addr::unchecked("contract").to_string(), 
-            new_code_id: 222, msg: to_json_binary(&migrate_msg).unwrap()
-        });
-        let proposal= ExecuteMsg::Propose {
+    fn test_migrate_proposal() {
+        let migrate_msg = MigrateMsg {};
+        let migrate: CosmosMsg<cosmwasm_std::Empty> =
+            CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Migrate {
+                contract_addr: Addr::unchecked("contract").to_string(),
+                new_code_id: 222,
+                msg: to_json_binary(&migrate_msg).unwrap(),
+            });
+        let proposal = ExecuteMsg::Propose {
             title: "Upgrade Contracts".to_owned(),
             description: "Upgrade Contract".to_owned(),
-            
+
             msgs: vec![migrate],
             latest: None,
-            
         };
-        println!("{:?}",&proposal);
-        println!("{:?}",to_json_string(&proposal).unwrap());
+        println!("{:?}", &proposal);
+        println!("{:?}", to_json_string(&proposal).unwrap());
     }
 }
