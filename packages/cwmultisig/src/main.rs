@@ -67,7 +67,7 @@ enum Commands {
 
 fn main() {
     let args=Cli::parse();
-    println!("{:?}",&args);
+   // println!("{:?}",&args);
 
   let res=  match args.method {
         Commands::UpdateAdmin { admin, contract } => {
