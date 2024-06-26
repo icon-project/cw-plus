@@ -97,8 +97,8 @@ fn main() {
             });
 
             let proposal= ExecuteMsg::Propose {
-                title: "Update Group Members".to_owned(),
-                description: "Update Group Members".to_owned(),
+                title: "UpdateGroupMembers".to_owned(),
+                description: "UpdateGroupMembers".to_owned(),
                 
                 msgs: vec![msg],
                 latest: None,
@@ -115,8 +115,8 @@ fn main() {
             msg: to_json_binary(&migrate_msg).unwrap()
         });
         let proposal= ExecuteMsg::Propose {
-            title: "Upgrade Contracts".to_owned(),
-            description: "Upgrade Contract".to_owned(),
+            title: "UpgradeContracts".to_owned(),
+            description: "UpgradeContract".to_owned(),
             
             msgs: vec![migrate],
             latest: None,
