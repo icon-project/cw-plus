@@ -31,14 +31,14 @@ enum Commands {
     /// update members of multisig contract
     UpdateMembers {
         #[clap(short, long)]
-        add:Option<String>,
+        add:String,
         #[clap(short, long)]
-        remove:Option<String>,
+        remove:String,
         #[clap(short, long)]
         members_contract:String,
         #[clap(short, long)]
         threshold:u64,
-        #[clap(short, long)]
+        #[clap(short='s', long)]
         multisig_contract:String,
     },
     UpdateContract {
@@ -88,14 +88,21 @@ fn main() {
 
         },
         Commands::UpdateMembers { add, remove ,members_contract,multisig_contract,threshold}=>{
-            let remove= remove.unwrap_or("".to_string()).split(",").into_iter().map(|s|s.to_string()).collect();
-            let add= add.unwrap_or("".to_string()).split(",").into_iter().map(|m|{
-                Member{
-                    addr:m.to_string(),
-                    weight:1,
-                }
-            }).collect::<Vec<Member>>();
-            let inner=cw4_group::msg::ExecuteMsg::UpdateMembers {add,remove };
+            let mut remove_list:Vec<String>=vec![];
+            let mut add_list:Vec<Member>=vec![];
+            if remove!="none".to_string() {
+                remove_list=remove.split(",").into_iter().map(|s|s.to_string()).collect();
+            }
+            if add!="none".to_string() {
+                add_list=add.split(",").into_iter().map(|m|{
+                    Member{
+                        addr:m.to_string(),
+                        weight:1,
+                    }
+                }).collect::<Vec<Member>>();
+
+            }
+            let inner=cw4_group::msg::ExecuteMsg::UpdateMembers {add:add_list,remove:remove_list};
             let update_member:CosmosMsg<cosmwasm_std::Empty> =CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Execute { 
                 contract_addr: members_contract, 
                 msg: to_json_binary(&inner).unwrap(), 
