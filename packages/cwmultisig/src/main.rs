@@ -56,6 +56,12 @@ enum Commands {
         group_contract:String,
         #[clap(short, long)]
         threshold:u64
+    },
+    InitMembers {
+        #[clap(short, long)]
+        members:Vec<String>,
+        #[clap(short, long)]
+        admin:String
     }
 }
 
@@ -141,6 +147,21 @@ fn main() {
             proposal_deposit: None,
         };
         to_json_string(&msg).unwrap()
+    },
+    Commands::InitMembers { members, admin }=>{
+        let msg= cw4_group::msg::InstantiateMsg{
+            admin:Some(admin),
+            members:members.into_iter().map(|m|{
+                Member{
+                    addr:m,
+                    weight:1
+                }
+            }).collect()
+        };
+
+
+        to_json_string(&msg).unwrap()
+
     }
     };
     println!("{:?}",&res);
