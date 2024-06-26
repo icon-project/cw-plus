@@ -59,7 +59,7 @@ enum Commands {
     },
     InitMembers {
         #[clap(short, long)]
-        members:Vec<String>,
+        members:String,
         #[clap(short, long)]
         admin:String
     }
@@ -68,7 +68,6 @@ enum Commands {
 fn main() {
     let args=Cli::parse();
     println!("{:?}",&args);
-    println!("Hello, world!");
 
   let res=  match args.method {
         Commands::UpdateAdmin { admin, contract } => {
@@ -151,9 +150,9 @@ fn main() {
     Commands::InitMembers { members, admin }=>{
         let msg= cw4_group::msg::InstantiateMsg{
             admin:Some(admin),
-            members:members.into_iter().map(|m|{
+            members:members.split(',').into_iter().map(|m|{
                 Member{
-                    addr:m,
+                    addr:m.to_string(),
                     weight:1
                 }
             }).collect()
