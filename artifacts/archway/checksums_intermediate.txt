@@ -55,3 +55,11 @@ fe5d5a5d2772bf178492dbc2aae0be2c1cc35d92652c8b2ea416ddac532e42a4  ./target/wasm3
 a2ca6af3fb9e74ce126c02395128ba56f2ead70e749e2046b2a420257680cf13  ./target/wasm32-unknown-unknown/release/cw3_flex_multisig.wasm
 abe7c459aa1486d529f01f0ff75e736f77246ded7570a3b8265791d26cc9a686  ./target/wasm32-unknown-unknown/release/cw4_group.wasm
 5580fc09953d31511fa2a0aa31d1619b42fe9b2ade123c492dfd5478224796e1  ./target/wasm32-unknown-unknown/release/cw4_stake.wasm
+f23205eb88bd717959997ebd7f2b8e3539b68cb802d838012734404d322b2ebe  ./target/wasm32-unknown-unknown/release/cw1_subkeys.wasm
+fe5d5a5d2772bf178492dbc2aae0be2c1cc35d92652c8b2ea416ddac532e42a4  ./target/wasm32-unknown-unknown/release/cw1_whitelist.wasm
+fe5d5a5d2772bf178492dbc2aae0be2c1cc35d92652c8b2ea416ddac532e42a4  ./target/wasm32-unknown-unknown/release/cw20_base.wasm
+7ba87a1c8b2cc53072df0e59d31c1eaf984904b2e4742a264c23b1453fea9f99  ./target/wasm32-unknown-unknown/release/cw20_ics20.wasm
+fe5d5a5d2772bf178492dbc2aae0be2c1cc35d92652c8b2ea416ddac532e42a4  ./target/wasm32-unknown-unknown/release/cw3_fixed_multisig.wasm
+a2ca6af3fb9e74ce126c02395128ba56f2ead70e749e2046b2a420257680cf13  ./target/wasm32-unknown-unknown/release/cw3_flex_multisig.wasm
+abe7c459aa1486d529f01f0ff75e736f77246ded7570a3b8265791d26cc9a686  ./target/wasm32-unknown-unknown/release/cw4_group.wasm
+5580fc09953d31511fa2a0aa31d1619b42fe9b2ade123c492dfd5478224796e1  ./target/wasm32-unknown-unknown/release/cw4_stake.wasm
