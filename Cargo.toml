@@ -1,6 +1,6 @@
 [workspace]
-members = ["packages/*", "contracts/*"]
-exclude=["packages/cwmultisig"]
+members = ["contracts/*","packages/*"]
+# exclude=["packages/cwmultisig"]
 
 # Resolver has to be set explicitely in workspaces, see https://github.com/rust-lang/cargo/issues/9956
 resolver = "2"
