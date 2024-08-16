@@ -4,6 +4,8 @@ use cw20_base::msg::MigrateMsg;
 use cw3::Vote;
 use cw3_flex_multisig::msg::ExecuteMsg;
 use cw4::Member;
+use cosmwasm_schema::cw_serde;
+use cosmwasm_std::Binary;
 
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
@@ -14,14 +16,13 @@ pub struct Cli {
     propose: bool,
 }
 
+
+#[cw_serde]
 pub struct MigrateMsgCore {
-    clear_store:bool,
+    pub clear_store:bool,
 }
 
-pub enum MigrateMsgs{
-    MigrateMsg(MigrateMsg),
-    MigrateMsgCore(MigrateMsgCore)
-}
+
 
 #[derive(Subcommand, Debug)]
 enum Commands {
@@ -52,7 +53,7 @@ enum Commands {
         contract: String,
         #[clap(short, long)]
         wasm_code_id: u64,
-        #[clap(short = 'cn', long)]
+        #[clap(short = 'n', long)]
         contract_name:String
 
     },
@@ -146,17 +147,18 @@ fn main() {
         Commands::UpdateContract {
             contract,
             wasm_code_id,
+            contract_name
         } => {
-            let migrate_msg:MigrateMsgs = if contract_name=="ibc-core".toString() {
-                MigrateMsgs::MigrateMsgCore(MigrateMsgCore{clear_store:false})
+            let migrate_msg:Binary = if contract_name=="ibc-core".to_string() {
+                to_json_binary(&MigrateMsgCore{clear_store:false}).unwrap()
             }else{
-                MigrateMsgs::MigrateMsg(MigrateMsg {})
-            }
+                to_json_binary(&MigrateMsg {}).unwrap()
+            };
             let migrate: CosmosMsg<cosmwasm_std::Empty> =
                 CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Migrate {
                     contract_addr: contract,
                     new_code_id: wasm_code_id,
-                    msg: to_json_binary(&migrate_msg.0).unwrap(),
+                    msg: migrate_msg,
                 });
             let proposal = ExecuteMsg::Propose {
                 title: "UpgradeContracts".to_owned(),

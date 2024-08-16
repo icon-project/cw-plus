@@ -546,9 +546,10 @@ dependencies = [
 
 [[package]]
 name = "cwmultisig"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "clap",
+ "cosmwasm-schema",
  "cosmwasm-std",
  "cw-utils",
  "cw20-base",
