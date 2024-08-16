@@ -14,6 +14,15 @@ pub struct Cli {
     propose: bool,
 }
 
+pub struct MigrateMsgCore {
+    clear_store:bool,
+}
+
+pub enum MigrateMsgs{
+    MigrateMsg(MigrateMsg),
+    MigrateMsgCore(MigrateMsgCore)
+}
+
 #[derive(Subcommand, Debug)]
 enum Commands {
     /// update admin address of a contract
@@ -43,6 +52,9 @@ enum Commands {
         contract: String,
         #[clap(short, long)]
         wasm_code_id: u64,
+        #[clap(short = 'cn', long)]
+        contract_name:String
+
     },
     Vote {
         #[clap(short, long)]
@@ -135,12 +147,16 @@ fn main() {
             contract,
             wasm_code_id,
         } => {
-            let migrate_msg = MigrateMsg {};
+            let migrate_msg:MigrateMsgs = if contract_name=="ibc-core".toString() {
+                MigrateMsgs::MigrateMsgCore(MigrateMsgCore{clear_store:false})
+            }else{
+                MigrateMsgs::MigrateMsg(MigrateMsg {})
+            }
             let migrate: CosmosMsg<cosmwasm_std::Empty> =
                 CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Migrate {
                     contract_addr: contract,
                     new_code_id: wasm_code_id,
-                    msg: to_json_binary(&migrate_msg).unwrap(),
+                    msg: to_json_binary(&migrate_msg.0).unwrap(),
                 });
             let proposal = ExecuteMsg::Propose {
                 title: "UpgradeContracts".to_owned(),
