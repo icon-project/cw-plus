@@ -170,6 +170,26 @@ fn main() {
 
             to_json_string(&proposal).unwrap()
         }
+        Commands::ExecuteContract {
+            contract,
+            execute_msg,
+        } => {
+            
+            let execute: CosmosMsg<cosmwasm_std::Empty> =
+                CosmosMsg::Wasm(cosmwasm_std::WasmMsg::Execute {
+                    contract_addr: contract,
+                    msg: execute_msg,
+                });
+            let proposal = ExecuteMsg::Propose {
+                title: "UpgradeContracts".to_owned(),
+                description: "UpgradeContract".to_owned(),
+
+                msgs: vec![execute],
+                latest: None,
+            };
+
+            to_json_string(&proposal).unwrap()
+        }
         Commands::Vote { proposal_id, vote } => {
             let vote = match vote.to_lowercase().as_str() {
                 "yes" => Vote::Yes,
