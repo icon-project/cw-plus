@@ -57,6 +57,13 @@ enum Commands {
         contract_name:String
 
     },
+    ExecuteContract {
+    #[clap(short, long)]
+    contract: String,
+    #[clap(short, long)]
+    execute_msg: String
+    },
+    
     Vote {
         #[clap(short, long)]
         proposal_id: u64,
